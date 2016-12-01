@@ -8,7 +8,7 @@
 using namespace std;
 using namespace Eigen;
 
-down_out::down_out():K(40.0), T(0.75), r(0.05), sigma(0.3), q(0.03), s(42.0),B(35.0)
+down_out::down_out():K(40.0), T(0.5), r(0.05), sigma(0.3), q(0.03), s(42.0),B(35.0)
 {
 }
 
@@ -35,7 +35,7 @@ VectorXd down_out::para(int M,double alpha_temp) {
 	double x_compute = log(s / K);
 	//double x_left = log(s / K) + (r - q - sigma*sigma / 2)*T - 3 * sigma*sqrt(T);
 	double x_left = log(B / K);
-	double x_right_temp = log(s / K) + (r - q - sigma*sigma / 2)*T + 3 * sigma*sqrt(T);
+	double x_right_temp = log(s / K) + (r - q - sigma*sigma / 2.0)*T + 3.0 * sigma*sqrt(T);
 	//cout << "x_right: " << x_right << endl;
 	double t_final = T*sigma*sigma / 2.0;
 	double dt = t_final / double(M);
@@ -60,8 +60,9 @@ VectorXd down_out::price(int M, double alpha_temp, int method, double w) {
 	value.setZero();
 	double x_compute = log(s / K);
 	//double x_left = log(s / K) + (r - q - sigma*sigma / 2)*T - 3 * sigma*sqrt(T);
+
 	double x_left = log(B / K);
-	double x_right_temp = log(s / K) + (r - q - sigma*sigma / 2)*T+3 * sigma*sqrt(T);
+	double x_right_temp = log(s / K) + (r - q - sigma*sigma / 2.0)*T+3.0 * sigma*sqrt(T);
 	//cout << "x_right: " << x_right << endl;
 	double t_final = T*sigma*sigma / 2.0;
 	double dt = t_final / double(M);
@@ -106,7 +107,7 @@ VectorXd down_out::price(int M, double alpha_temp, int method, double w) {
 	case 2:	u = Crank_NicolsenbySOR(M, N, w, alpha,u); break;
 	}
 	if ((method == 0) || (method == 1)) {
-		if ((alpha_temp == 0.4)&(M==4) ){
+		if ((M==4)&(alpha_temp==0.4)){
 			for (int i = 0; i <= M; i++) {
 				for (int j = 0; j <= N; j++) cout << u(j, i) << " ";
 				cout << endl;
@@ -122,7 +123,7 @@ VectorXd down_out::price(int M, double alpha_temp, int method, double w) {
 	double v0 = u(index - 1, M)*exp(-a*(x_left + index*dx - dx) - b*t_final);
 	double v1 = u(index, M)*exp(-a*(x_left + index*dx) - b*t_final);
 	double v2 = u(index + 1, M)*exp(-a*(x_left + index*dx + dx) - b*t_final);
-	double v3 = u(index, M-1)*exp(-a*x_left- b*t_final+b*dt);
+	double v3 = u(index, M-1)*exp(-a*(x_left + index*dx) - b*t_final+b*dt);
 	//cout << "dx: " << dx << endl;
 	//cout << "s0:" << K*exp(x_left) << endl;
 	double s0 = K*exp(x_left + index*dx - dx);
